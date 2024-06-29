@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Forecast Data</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+</head>
+
+<body>
+    <h1>Forecast Data</h1>
+
+    <form action="/get_data" method="GET" onsubmit="getDataAndRenderChart(event)">
+        <label for="start-date">Start Date:</label>
+        <input type="datetime-local" id="start-date" name="start_date">
+        <br>
+        <label for="end-date">End Date:</label>
+        <input type="datetime-local" id="end-date" name="end_date">
+        <br>
+        <input type="submit" value="Get Data">
+    </form>
+
+    <canvas id="myChart"></canvas>
+
+    <script>
+        function getDataAndRenderChart(event) {
+            event.preventDefault();  
+            
+            var startDateInput = document.getElementById('start-date');
+            var endDateInput = document.getElementById('end-date');
+            var startDate = startDateInput.value;
+            var endDate = endDateInput.value;
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/get_data?start_date=' + encodeURIComponent(startDate) + '&end_date=' + encodeURIComponent(endDate));
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+
+                    renderChart(data);
+                }
+            };
+            xhr.send();
+        }
+
+        function renderChart(forecastData) {
+            var p10Timestamps = forecastData.p10.map(data => data.Timestamp);
+            var p10Values = forecastData.p10.map(data => data.Value);
+            var p50Timestamps = forecastData.p50.map(data => data.Timestamp);
+            var p50Values = forecastData.p50.map(data => data.Value);
+            var p90Timestamps = forecastData.p90.map(data => data.Timestamp);
+            var p90Values = forecastData.p90.map(data => data.Value);
+
+            const ctx = document.getElementById('myChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: p10Timestamps,
+                    datasets: [
+                        {
+                            label: 'p10',
+                            data: p10Values,
+                            backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                            borderColor: 'rgba(0, 123, 255, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'p50',
+                            data: p50Values,
+                            backgroundColor: 'rgba(255, 0, 0, 0.5)',
+                            borderColor: 'rgba(255, 0, 0, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'p90',
+                            data: p90Values,
+                            backgroundColor: 'rgba(0, 255, 0, 0.5)',
+                            borderColor: 'rgba(0, 255, 0, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                displayFormats: {
+                                    day: 'YYYY-MM-DD'
+                                }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
