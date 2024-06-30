@@ -11,7 +11,7 @@ def index():
 @app.route('/get_max_data', methods=['GET'])
 def get_max_data():
     client = boto3.client('forecastquery', region_name='us-east-1')
-    forecast_arn='arn:aws:forecast:us-east-1:162690303242:forecast/forecast3_230355121'
+    forecast_arn='arn:aws:forecast:us-east-1:532511990108:forecast/my_forecast'
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date') 
     filters = {
@@ -32,7 +32,7 @@ def get_max_data():
 @app.route('/get_min_data', methods=['GET'])
 def get_min_data():
     client = boto3.client('forecastquery', region_name='us-east-1')
-    forecast_arn='arn:aws:forecast:us-east-1:162690303242:forecast/forecast3_230355121'
+    forecast_arn='arn:aws:forecast:us-east-1:532511990108:forecast/my_forecast'
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date') 
     filters = {
